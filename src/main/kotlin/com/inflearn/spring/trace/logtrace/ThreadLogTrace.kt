@@ -7,11 +7,11 @@ import mu.KotlinLogging
 private val log = KotlinLogging.logger {}
 
 class ThreadLogTrace : LogTrace {
-    private var traceIdHolder: ThreadLocal<TraceId>? = ThreadLocal()
+    private var traceIdHolder: ThreadLocal<TraceId> = ThreadLocal()
 
     override fun begin(message: String): TraceStatus {
         syncTraceId()
-        val traceId = traceIdHolder!!.get() ?: throw IllegalArgumentException()
+        val traceId = traceIdHolder.get() ?: throw IllegalArgumentException()
 
         val startTimeMs = System.currentTimeMillis()
         log.info { "[${traceId.getId()}] ${addSpace(START_PREFIX, traceId.getLevel())}$message " }
@@ -20,12 +20,12 @@ class ThreadLogTrace : LogTrace {
     }
 
     private fun syncTraceId() {
-        val traceId = traceIdHolder!!.get()
+        val traceId = traceIdHolder.get()
 
         if (traceId == null) {
-            traceIdHolder!!.set(TraceId())
+            traceIdHolder.set(TraceId())
         } else {
-            traceIdHolder!!.set(traceId.createNextId())
+            traceIdHolder.set(traceId.createNextId())
         }
     }
 
@@ -66,12 +66,12 @@ class ThreadLogTrace : LogTrace {
     }
 
     private fun releaseTraceId() {
-        val traceId = traceIdHolder!!.get()
+        val traceId = traceIdHolder.get()
 
         if (traceId.isFirstLevel()) {
-            traceIdHolder!!.remove() // destroy
+            traceIdHolder.remove() // destroy
         } else {
-            traceIdHolder!!.set(traceId.createPreviousId())
+            traceIdHolder.set(traceId.createPreviousId())
         }
     }
 
